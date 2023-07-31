@@ -1,0 +1,4 @@
+framework module SendbirdUIKit {
+  header "SendbirdUIKit-Swift.h"
+  requires objc
+}
