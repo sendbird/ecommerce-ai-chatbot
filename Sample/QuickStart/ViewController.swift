@@ -65,6 +65,12 @@ class ViewController: UIViewController, UserEventDelegate, ConnectionDelegate {
     }
     
     // MARK: - Actions
+    @IBAction func onEditingChangeTextField(_ sender: UITextField) {
+        let color = sender.text?.isEmpty ?? true ? #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0) : #colorLiteral(red: 0.4823529412, green: 0.3254901961, blue: 0.937254902, alpha: 1)
+        sender.animateBorderColor(toColor: color, duration: 0.1)
+    }
+    
+    // MARK: - Actions
     @IBAction func onTapButton(_ sender: UIButton) {
         if sender.tag == ButtonType.signIn.rawValue {
             self.signinAction()
