@@ -1,10 +1,10 @@
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: sendbird-uikit-ios
-  description: This is a private repository for iOS UIKit
+  name: ecommerce-ai-chatbot
+  description: This is a demo project for Ecommerce AI Chatbot
   annotations:
-    github.com/project-slug: sendbird/sendbird-uikit-ios
+    github.com/project-slug: sendbird/ecommerce-ai-chatbot
 spec:
   type: library
   lifecycle: production
