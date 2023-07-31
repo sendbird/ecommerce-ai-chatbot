@@ -17,7 +17,7 @@ Utilizing OpenAI’s GPT3.5 and its Function Calling functionality, ***Sendbird 
 ```shell
 open Sample/QuickStart.xcodeproj
 ```
-2. Set the `applicationId` and `botId` in `AppDelegate.swift`
+2. Set the `applicationId` and `botId` in [`AppDelegate.swift`](https://github.com/sendbird/ecommerce-ai-chatbot/blob/develop/Sample/QuickStart/AppDelegate.swift#L13-L23)
 ```swift
 static let botId: String = <#botId: String#>
 ```
@@ -73,92 +73,92 @@ The following is a prompt sample of `system_message` and `functions` in `json` f
    - `description`: the description about the Function Calling request. It can detail when to call the function and what action to be taken. Chat GPT will use this information to analyze the customer’s message and determine whether to call the function or not.
    - `parameter`: This contains a list of arguments required for the Function Calling.
 
-SBUBaseChannelViewManger.swift
+[SBUBaseChannelViewModel.swift](https://github.com/sendbird/ecommerce-ai-chatbot/blob/develop/Sources/ViewModel/Channel/SBUBaseChannelViewModel.swift#L221)
 ```swift
 let data = """
-{
-    "ai_attrs":{
-        "system_message":"You are an AI assistant that handles and manages customer orders. You will be interacting with customers who have the orders. Ensure a maximum of three highly relevant recommended quick replies are always included in the response with this format JSON^{\\\"options\\\": [\\\"I want to check the order list\\\", \\\"I'd like to cancel my order\\\", \\\"Please recommend me items\\\", \\\"Yes I want cancel it\\\", \\\"No I don't want\\\",  \\\"I don’t like any of them, thank you\\\"]}^NSOJ\\\\n1. Available 24/7 to assist customers with their order inquiries.\\\\n2. Customers may request to check the status of their orders or cancel them.\\\\n3. You have access to the customer's order list and the order details associated with it.\\\\n4. When a customer requests to cancel an order, you need to confirm the specific order number from their order list before proceeding.\\\\n5. Ensure confirmation for the cancellation to the customer once it has been processed successfully.\\\\nIf a customer needs further assistance after order cancellation, be ready to provide it\\\\nYou will be interacting with customers named John and cumstomer id is 12345",
-        "functions":[
-            {
-                "request":{
-                    "headers":{},
-                    "method":"GET",
-                    "url":"https://aovxtjod0a.execute-api.ap-northeast-2.amazonaws.com/demo/get_order_list"
-                },
-                "name":"get_order_list",
-                "description":"Get the order list of the customer",
-                "parameters":{
-                    "type":"object",
-                    "properties":{
-                        "customer_id":{
-                            "description":"Customer ID of the customer",
-                            "type":"string"
-                        }
+    {
+        "ai_attrs":{
+            "system_message":"You are an AI assistant that handles and manages customer orders. You will be interacting with customers who have the orders. Ensure a maximum of three highly relevant recommended quick replies are always included in the response with this format JSON^{\\\"options\\\": [\\\"I want to check the order list\\\", \\\"I'd like to cancel my order\\\", \\\"Please recommend me items\\\", \\\"Yes I want cancel it\\\", \\\"No I don't want\\\",  \\\"I don’t like any of them, thank you\\\"]}^NSOJ\\\\n1. Available 24/7 to assist customers with their order inquiries.\\\\n2. Customers may request to check the status of their orders or cancel them.\\\\n3. You have access to the customer's order list and the order details associated with it.\\\\n4. When a customer requests to cancel an order, you need to confirm the specific order number from their order list before proceeding.\\\\n5. Ensure confirmation for the cancellation to the customer once it has been processed successfully.\\\\nIf a customer needs further assistance after order cancellation, be ready to provide it\\\\nYou will be interacting with customers named John and cumstomer id is 12345",
+            "functions":[
+                {
+                    "request":{
+                        "headers":{},
+                        "method":"GET",
+                        "url":"https://789b92fc-4055-4d3d-82e7-ccd83f6929c6.mock.pstmn.io/get_order_list"
                     },
-                    "required":["customer_id"]
-                }
-            },
-            {
-                "request":{
-                    "headers":{},
-                    "method":"GET",
-                    "url":"https://aovxtjod0a.execute-api.ap-northeast-2.amazonaws.com/demo/get_order_details"
+                    "name":"get_order_list",
+                    "description":"Get the order list of the customer",
+                    "parameters":{
+                        "type":"object",
+                        "properties":{
+                            "customer_id":{
+                                "description":"Customer ID of the customer",
+                                "type":"string"
+                            }
+                        },
+                        "required":["customer_id"]
+                    }
                 },
-                "name":"get_order_details",
-                "description":"Get the order details of the customer",
-                "parameters":{
-                    "type":"object",
-                    "properties":{
-                        "order_id":{
-                            "description":"Order ID of the customer",
-                            "type":"string"
-                        }
+                {
+                    "request":{
+                        "headers":{},
+                        "method":"GET",
+                        "url":"https://789b92fc-4055-4d3d-82e7-ccd83f6929c6.mock.pstmn.io/get_order_details"
                     },
-                    "required":["order_id"]
-                }
-            },
-            {
-                "request":{
-                    "headers":{},
-                    "method":"GET",
-                    "url":"https://aovxtjod0a.execute-api.ap-northeast-2.amazonaws.com/demo/cancel_order"
+                    "name":"get_order_details",
+                    "description":"Get the order details of the customer",
+                    "parameters":{
+                        "type":"object",
+                        "properties":{
+                            "order_id":{
+                                "description":"Order ID of the customer",
+                                "type":"string"
+                            }
+                        },
+                        "required":["order_id"]
+                    }
                 },
-                "name":"cancel_order",
-                "description":"Cancel the order of the customer",
-                "parameters":{
-                    "type":"object",
-                    "properties":{
-                        "order_id":{
-                            "description":"Order ID of the customer",
-                            "type":"string"
-                        }
+                {
+                    "request":{
+                        "headers":{},
+                        "method":"POST",
+                        "url":"https://789b92fc-4055-4d3d-82e7-ccd83f6929c6.mock.pstmn.io/cancel_order"
                     },
-                    "required":["order_id"]
-                }
-            },
-            {
-                "request":{
-                    "headers":{},
-                    "method":"GET",
-                    "url":"https://aovxtjod0a.execute-api.ap-northeast-2.amazonaws.com/demo/get_recommendation"
+                    "name":"cancel_order",
+                    "description":"Cancel the order of the customer",
+                    "parameters":{
+                        "type":"object",
+                        "properties":{
+                            "order_id":{
+                                "description":"Order ID of the customer",
+                                "type":"string"
+                            }
+                        },
+                        "required":["order_id"]
+                    }
                 },
-                "name":"get_recommendation",
-                "description":"Get the recommendation list of the customer",
-                "parameters":{
-                    "type":"object",
-                    "properties":{
-                        "customer_id":{
-                            "description":"Customer ID of the customer",
-                            "type":"string"
-                        }
+                {
+                    "request":{
+                        "headers":{},
+                        "method":"GET",
+                        "url":"https://789b92fc-4055-4d3d-82e7-ccd83f6929c6.mock.pstmn.io/get_recommendation"
                     },
-                    "required":["customer_id"]
+                    "name":"get_recommendation",
+                    "description":"Get the recommendation list of the customer",
+                    "parameters":{
+                        "type":"object",
+                        "properties":{
+                            "customer_id":{
+                                "description":"Customer ID of the customer",
+                                "type":"string"
+                            }
+                        },
+                        "required":["customer_id"]
+                    }
                 }
-            }
-        ]
+            ]
+        }
     }
-}
 """
 ```
 
@@ -173,7 +173,7 @@ The following is a prompt sample of `first_message_data` in `json` format. The o
    - `options`: this contains a list of Quick Reply messages. A customer can choose a predefined item from the list, which enhances the clarity of the customer’s request and thus helps the AI Chatbot understand their intention.
  - `message`: this is a Welcome Message to greet a customer when they open a channel and initiate conversation with an AI ChatBot. 
 
-SBUCreateChannelViewModel.swift
+[SBUCreateChannelViewModel.swift](https://github.com/sendbird/ecommerce-ai-chatbot/blob/develop/Sources/ViewModel/SelectUser/CreateChannel/SBUCreateChannelViewModel.swift#L223)
 ```swift
 let data: [String: Any] = [
     "first_message_data": [
@@ -204,7 +204,7 @@ do {
 ### CardView
 The `data` in the response are displayed in a Card view. In the demo, information such as order items and their delivery status can be displayed in a card with an image, title, and description. Customization of the view can be done through `cardViewParamsCollectionBuilder` and `SBUCardViewParams`. The following codes show how to set the Card view of order status.
 
-SBUUserMessageCell.swift
+[SBUUserMessageCell.swift](https://github.com/sendbird/ecommerce-ai-chatbot/blob/develop/Sources/View/Channel/MessageCell/SBUUserMessageCell.swift#L171)
 ```swift
 // MARK: Card List
 if let cardListView = self.cardListView {
@@ -305,7 +305,7 @@ if functionResponse.type != .null {
 ### QuickReplyView
 The following codes demonstrate how to set the view for Quick Replies. The values in `options` of `first_message_data.data` are used as Quick Replies.
 
-SBUUserMessageCell.swift
+[SBUUserMessageCell.swift](https://github.com/sendbird/ecommerce-ai-chatbot/blob/develop/Sources/View/Channel/MessageCell/SBUUserMessageCell.swift#L161)
 ```swift
 // MARK: Quick Reply        
 if let quickReplyView = self.quickReplyView {
