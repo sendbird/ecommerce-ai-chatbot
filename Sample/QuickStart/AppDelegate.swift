@@ -10,6 +10,7 @@ import UIKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
+    static let botId: String = <#botId: String#> // TODO: set your sendbird bot id
     var window: UIWindow?
     
     var pendingNotificationPayload: NSDictionary?
