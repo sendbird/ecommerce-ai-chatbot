@@ -127,6 +127,7 @@ open class SBUCreateChannelViewModel {
             if self.userListQuery == nil {
                 let params = ApplicationUserListQueryParams()
                 params.limit = SBUCreateChannelViewModel.limit
+                params.userIdsFilter = [AppDelegate.botId]
                 self.userListQuery = SendbirdChat.createApplicationUserListQuery(params: params)
             }
             
