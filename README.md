@@ -74,92 +74,118 @@ The following is a prompt sample of `system_message` and `functions` in `json` f
    - `name`: the name of the Function Calling request
    - `description`: the description about the Function Calling request. It can detail when to call the function and what action to be taken. Chat GPT will use this information to analyze the customer’s message and determine whether to call the function or not.
    - `parameter`: This contains a list of arguments required for the Function Calling.
+   - `quick_replies`: This value is returned as a `quickReply.options` value in the response of function_call. This value is used for Quick Reply View. If there is a recommended quick reply in the GPT's answer, this value is used first.
 
 [SBUBaseChannelViewModel.swift](https://github.com/sendbird/ecommerce-ai-chatbot/blob/develop/Sources/ViewModel/Channel/SBUBaseChannelViewModel.swift#L221)
 ```swift
 let data = """
     {
-        "ai_attrs":{
-            "system_message":"You are an AI assistant that handles and manages customer orders. You will be interacting with customers who have the orders. Ensure a maximum of three highly relevant recommended quick replies are always included in the response with this format JSON^{\\\"options\\\": [\\\"I want to check the order list\\\", \\\"I'd like to cancel my order\\\", \\\"Please recommend me items\\\", \\\"Yes I want cancel it\\\", \\\"No I don't want\\\",  \\\"I don’t like any of them, thank you\\\"]}^NSOJ\\\\n1. Available 24/7 to assist customers with their order inquiries.\\\\n2. Customers may request to check the status of their orders or cancel them.\\\\n3. You have access to the customer's order list and the order details associated with it.\\\\n4. When a customer requests to cancel an order, you need to confirm the specific order number from their order list before proceeding.\\\\n5. Ensure confirmation for the cancellation to the customer once it has been processed successfully.\\\\nIf a customer needs further assistance after order cancellation, be ready to provide it\\\\nYou will be interacting with customers named John and cumstomer id is 12345",
-            "functions":[
-                {
-                    "request":{
-                        "headers":{},
-                        "method":"GET",
-                        "url":"https://789b92fc-4055-4d3d-82e7-ccd83f6929c6.mock.pstmn.io/get_order_list"
-                    },
-                    "name":"get_order_list",
-                    "description":"Get the order list of the customer",
-                    "parameters":{
-                        "type":"object",
-                        "properties":{
-                            "customer_id":{
-                                "description":"Customer ID of the customer",
-                                "type":"string"
-                            }
-                        },
-                        "required":["customer_id"]
-                    }
-                },
-                {
-                    "request":{
-                        "headers":{},
-                        "method":"GET",
-                        "url":"https://789b92fc-4055-4d3d-82e7-ccd83f6929c6.mock.pstmn.io/get_order_details"
-                    },
-                    "name":"get_order_details",
-                    "description":"Get the order details of the customer",
-                    "parameters":{
-                        "type":"object",
-                        "properties":{
-                            "order_id":{
-                                "description":"Order ID of the customer",
-                                "type":"string"
-                            }
-                        },
-                        "required":["order_id"]
-                    }
-                },
-                {
-                    "request":{
-                        "headers":{},
-                        "method":"POST",
-                        "url":"https://789b92fc-4055-4d3d-82e7-ccd83f6929c6.mock.pstmn.io/cancel_order"
-                    },
-                    "name":"cancel_order",
-                    "description":"Cancel the order of the customer",
-                    "parameters":{
-                        "type":"object",
-                        "properties":{
-                            "order_id":{
-                                "description":"Order ID of the customer",
-                                "type":"string"
-                            }
-                        },
-                        "required":["order_id"]
-                    }
-                },
-                {
-                    "request":{
-                        "headers":{},
-                        "method":"GET",
-                        "url":"https://789b92fc-4055-4d3d-82e7-ccd83f6929c6.mock.pstmn.io/get_recommendation"
-                    },
-                    "name":"get_recommendation",
-                    "description":"Get the recommendation list of the customer",
-                    "parameters":{
-                        "type":"object",
-                        "properties":{
-                            "customer_id":{
-                                "description":"Customer ID of the customer",
-                                "type":"string"
-                            }
-                        },
-                        "required":["customer_id"]
-                    }
+      "ai_attrs": {
+        "system_message": "You are an AI assistant that handles and manages customer orders. You will be interacting with customers who have the orders.\\n and you need give me the suggested response to the customer's inquiry every time like below with this special format\\n`JSON^{\"options\": [\"Check the order\", \"Cancel the order\", \"Recommend me something\"]}^NSOJ`\\n\\n1. Available 24/7 to assist customers with their order inquiries.\\n2. Customers may request to check the status of their orders or cancel them.\\n3. You have access to the customer's order list and the order details associated with it.\\n4. When a customer requests to cancel an order, you need to confirm the specific order number from their order list before proceeding.\\n5. You need to confirm the cancellation to the customer once it has been processed successfully.\\nIf a customer needs further assistance after order cancellation, be ready to provide it\\nYou will be interacting with customers named John and customer id is 12345",
+        "functions": [
+          {
+            "request": {
+              "headers": {},
+              "method": "GET",
+              "url": "https://789b92fc-4055-4d3d-82e7-ccd83f6929c6.mock.pstmn.io/get_order_list"
+            },
+            "quick_replies": [
+                "I want to check the order details",
+                "I want to cancel my order",
+                "Please recommend me items"
+            ],
+            "name": "get_order_list",
+            "description": "Get the order list of the customer",
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "customer_id": {
+                  "description": "Customer ID of the customer",
+                  "type": "string"
                 }
-            ]
-        }
+              },
+              "required": [
+                "customer_id"
+              ]
+            }
+          },
+          {
+            "request": {
+              "headers": {},
+              "method": "GET",
+              "url": "https://789b92fc-4055-4d3d-82e7-ccd83f6929c6.mock.pstmn.io/get_order_details"
+            },
+            "quick_replies": [
+                "I want to cancel my order",
+                "Please recommend me items"
+            ],
+            "name": "get_order_details",
+            "description": "Get the order details of the customer",
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "order_id": {
+                  "description": "Order ID of the customer",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "order_id"
+              ]
+            }
+          },
+          {
+            "request": {
+              "headers": {},
+              "method": "POST",
+              "url": "https://789b92fc-4055-4d3d-82e7-ccd83f6929c6.mock.pstmn.io/cancel_order"
+            },
+            "quick_replies": [
+                "I want to check the order list",
+                "Please recommend me items"
+            ],
+            "name": "cancel_order",
+            "description": "Cancel the order of the customer",
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "order_id": {
+                  "description": "Order ID of the customer",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "order_id"
+              ]
+            }
+          },
+          {
+            "request": {
+              "headers": {},
+              "method": "GET",
+              "url": "https://789b92fc-4055-4d3d-82e7-ccd83f6929c6.mock.pstmn.io/get_recommendation"
+            },
+            "quick_replies": [
+                "I want to add item to my cart",
+                "I don’t like any of them, thank you"
+            ],
+            "name": "get_recommendation",
+            "description": "Get the recommendation list of the customer",
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "order_id": {
+                  "description": "Customer ID of the customer",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "order_id"
+              ]
+            }
+          }
+        ]
+      }
     }
 """
 ```
