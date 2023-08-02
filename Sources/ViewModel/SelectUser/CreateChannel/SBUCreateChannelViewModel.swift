@@ -223,14 +223,18 @@ open class SBUCreateChannelViewModel {
         let data: [String: Any] = [
             "first_message_data": [
                 [
+                    "data": [],
+                    "message": "Hi I’m E-Commerce ChatBot."
+                ],
+                [
                     "data": [
                         "options": [
-                            "I want to check the order list",
-                            "I want to cancel my order",
-                            "Please recommend me items"
+                            "Check the order list",
+                            "Cancel my order",
+                            "Recommend items"
                         ]
                     ],
-                    "message": "Hello! I'm E-Commer's chatbot. I'm still learning but I'm here 24/7 to answer your question or connect you with the right person to help."
+                    "message": "I'm still learning but I'm here 24/7 to answer your question or connect you with the right person to help."
                 ]
             ]
         ]
