@@ -31,26 +31,26 @@ public protocol SBUBaseChannelViewModelDelegate: SBUCommonViewModelDelegate {
         didChangeChannel channel: BaseChannel?,
         withContext context: MessageContext
     )
-    
+
     /// Called when the channel has received a new message.
     func baseChannelViewModel(
         _ viewModel: SBUBaseChannelViewModel,
         didReceiveNewMessage message: BaseMessage,
         forChannel channel: BaseChannel
     )
-    
+
     /// Called when the channel should finish editing mode
     func baseChannelViewModel(
         _ viewModel: SBUBaseChannelViewModel,
         shouldFinishEditModeForChannel channel: BaseChannel
     )
-    
+
     /// Called when the channel should be dismissed.
     func baseChannelViewModel(
         _ viewModel: SBUBaseChannelViewModel,
         shouldDismissForChannel channel: BaseChannel?
     )
-    
+
     /// Called when the messages has been changed. If they're the first loaded messages, `initialLoad` is `true`.
     func baseChannelViewModel(
         _ viewModel: SBUBaseChannelViewModel,
@@ -58,14 +58,14 @@ public protocol SBUBaseChannelViewModelDelegate: SBUCommonViewModelDelegate {
         needsToReload: Bool,
         initialLoad: Bool
     )
-    
+
     /// Called when the messages has been deleted.
     /// - Since: 3.4.0
     func baseChannelViewModel(
         _ viewModel: SBUBaseChannelViewModel,
         deletedMessages messages: [BaseMessage]
     )
-    
+
     /// Called when it should be updated scroll status for messages.
     func baseChannelViewModel(
         _ viewModel: SBUBaseChannelViewModel,
@@ -73,7 +73,7 @@ public protocol SBUBaseChannelViewModelDelegate: SBUCommonViewModelDelegate {
         forContext context: MessageContext?,
         keepsScroll: Bool
     )
-    
+
     /// Called when it has updated the reaction event for a message.
     func baseChannelViewModel(
         _ viewModel: SBUBaseChannelViewModel,
@@ -86,7 +86,7 @@ open class SBUBaseChannelViewModel: NSObject {
     // MARK: - Constant
     let defaultFetchLimit: Int = 30
     let initPolicy: MessageCollectionInitPolicy = .cacheAndReplaceByApi
-    
+
     // MARK: - Logic properties (Public)
     /// The current channel object. It's `BaseChannel` type.
     public internal(set) var channel: BaseChannel?
@@ -94,15 +94,15 @@ open class SBUBaseChannelViewModel: NSObject {
     public internal(set) var channelURL: String?
     /// The starting point of the message list in the `channel`.
     public internal(set) var startingPoint: Int64?
-    
+
     /// This user message object that is being edited.
     public internal(set) var inEditingMessage: UserMessage?
-    
+
     /// This object has a list of all success messages synchronized with the server.
     @SBUAtomic public internal(set) var messageList: [BaseMessage] = []
     /// This object has a list of all messages.
     @SBUAtomic public internal(set) var fullMessageList: [BaseMessage] = []
-    
+
     /// This object is used to check if current user is an operator.
     public var isOperator: Bool {
         if let groupChannel = self.channel as? GroupChannel {
@@ -117,70 +117,70 @@ open class SBUBaseChannelViewModel: NSObject {
     /// Custom param set by user.
     public var customizedMessageListParams: MessageListParams?
     public internal(set) var messageListParams = MessageListParams()
-    
+
     public var sendFileMessageCompletionHandler: SendbirdChatSDK.FileMessageHandler?
     public var sendUserMessageCompletionHandler: SendbirdChatSDK.UserMessageHandler?
-    
+
     public var pendingMessageManager = SBUPendingMessageManager.shared
-    
+
     // MARK: - Logic properties (Private)
     weak var baseDataSource: SBUBaseChannelViewModelDataSource?
     weak var baseDelegate: SBUBaseChannelViewModelDelegate?
-    
+
     let prevLock = NSLock()
     let nextLock = NSLock()
     let initialLock = NSLock()
-    
+
     var isInitialLoading = false
     var isScrollToInitialPositionFinish = false
-    
+
     @SBUAtomic var isLoadingNext = false
     @SBUAtomic var isLoadingPrev = false
 
     /// Memory cache of newest messages to be used when message has loaded from specific timestamp.
     var messageCache: SBUMessageCache?
-    
+
     var isTransformedList: Bool = true
     var isThreadMessageMode: Bool = false
-    
+
     // MARK: - LifeCycle
     public override init() {
         super.init()
-        
+
         SendbirdChat.addConnectionDelegate(
             self,
             identifier: "\(SBUConstant.connectionDelegateIdentifier).\(self.description)"
         )
     }
-    
+
     func reset() {
         self.messageCache = nil
         self.resetMessageListParams()
         self.isScrollToInitialPositionFinish = false
     }
-    
+
     deinit {
         self.baseDelegate = nil
         self.baseDataSource = nil
-        
+
         SendbirdChat.removeConnectionDelegate(
             forIdentifier: "\(SBUConstant.connectionDelegateIdentifier).\(self.description)"
         )
     }
-    
+
     // MARK: - Channel related
-    
+
     /// This function loads channel information and message list.
     /// - Parameters:
     ///   - channelURL: channel url
     ///   - messageListParams: (Optional) The parameter to be used when getting channel information.
     public func loadChannel(channelURL: String, messageListParams: MessageListParams? = nil, completionHandler: ((BaseChannel?, SBError?) -> Void)? = nil) {}
-    
+
     /// This function refreshes channel.
     public func refreshChannel() {}
-    
+
     // MARK: - Load Messages
-    
+
     /// Loads initial messages in channel.
     /// `NOT` using `initialMessages` here since `MessageCollection` handles messages from db.
     /// Only used in `SBUOpenChannelViewModel` where `MessageCollection` is not suppoorted.
@@ -190,15 +190,15 @@ open class SBUBaseChannelViewModel: NSObject {
     ///   - showIndicator: Whether to show indicator on load or not.
     ///   - initialMessages: Custom messages to start the messages from.
     public func loadInitialMessages(startingPoint: Int64?,
-                             showIndicator: Bool,
-                             initialMessages: [BaseMessage]?) {}
-    
+                               showIndicator: Bool,
+                               initialMessages: [BaseMessage]?) {}
+
     /// Loads previous messages.
     public func loadPrevMessages() {}
-    
+
     /// Loads next messages from `lastUpdatedTimestamp`.
     public func loadNextMessages() {}
-    
+
     /// This function resets list and reloads message lists.
     public func reloadMessageList() {
         self.loadInitialMessages(
@@ -207,9 +207,9 @@ open class SBUBaseChannelViewModel: NSObject {
             initialMessages: []
         )
     }
-    
+
     // MARK: - Message
-    
+
     /// Sends a user message with text and parentMessageId.
     /// - Parameters:
     ///    - text: String value
@@ -221,7 +221,7 @@ open class SBUBaseChannelViewModel: NSObject {
         let data = """
             {
                 "ai_attrs":{
-                    "system_message":"You are an AI assistant that handles and manages customer orders. You will be interacting with customers who have the orders. Ensure a maximum of three highly relevant recommended quick replies are always included in the response with this format JSON^{\\\"options\\\": [\\\"I want to check the order list\\\", \\\"I'd like to cancel my order\\\", \\\"Please recommend me items\\\", \\\"Yes I want cancel it\\\", \\\"No I don't want\\\",  \\\"I don’t like any of them, thank you\\\"]}^NSOJ\\\\n1. Available 24/7 to assist customers with their order inquiries.\\\\n2. Customers may request to check the status of their orders or cancel them.\\\\n3. You have access to the customer's order list and the order details associated with it.\\\\n4. When a customer requests to cancel an order, you need to confirm the specific order number from their order list before proceeding.\\\\n5. Ensure confirmation for the cancellation to the customer once it has been processed successfully.\\\\nIf a customer needs further assistance after order cancellation, be ready to provide it\\\\nYou will be interacting with customers named John and cumstomer id is 12345",
+                    "system_message":"You are an AI assistant that handles and manages customer orders. You will be interacting with customers who have the orders. Ensure a maximum of three highly relevant recommended quick replies are always included in the response with this format JSON^{\\\\\\"options\\\\\\": [\\\\\\"I want to check the order list\\\\\\", \\\\\\"I'd like to cancel my order\\\\\\", \\\\\\"Please recommend me items\\\\\\", \\\\\\"Yes I want cancel it\\\\\\", \\\\\\"No I don't want\\\\\\",  \\\\\\"I don’t like any of them, thank you\\\\\\"]}^NSOJ\\\\\\\\n1. Available 24/7 to assist customers with their order inquiries.\\\\\\\\n2. Customers may request to check the status of their orders or cancel them.\\\\\\\\n3. You have access to the customer's order list and the order details associated with it.\\\\\\\\n4. When a customer requests to cancel an order, you need to confirm the specific order number from their order list before proceeding.\\\\\\\\n5. Ensure confirmation for the cancellation to the customer once it has been processed successfully.\\\\\\\\nIf a customer needs further assistance after order cancellation, be ready to provide it\\\\\\\\nYou will be interacting with customers named John and cumstomer id is 12345",
                     "functions":[
                         {
                             "request":{
@@ -229,6 +229,11 @@ open class SBUBaseChannelViewModel: NSObject {
                                 "method":"GET",
                                 "url":"https://789b92fc-4055-4d3d-82e7-ccd83f6929c6.mock.pstmn.io/get_order_list"
                             },
+                            "quick_replies": [
+                                "I want to check the order details",
+                                "I want to cancel my order",
+                                "Please recommend me items"
+                            ],
                             "name":"get_order_list",
                             "description":"Get the order list of the customer",
                             "parameters":{
@@ -248,6 +253,10 @@ open class SBUBaseChannelViewModel: NSObject {
                                 "method":"GET",
                                 "url":"https://789b92fc-4055-4d3d-82e7-ccd83f6929c6.mock.pstmn.io/get_order_details"
                             },
+                            "quick_replies": [
+                                "I want to cancel my order",
+                                "Please recommend me items"
+                            ],
                             "name":"get_order_details",
                             "description":"Get the order details of the customer",
                             "parameters":{
@@ -267,6 +276,10 @@ open class SBUBaseChannelViewModel: NSObject {
                                 "method":"POST",
                                 "url":"https://789b92fc-4055-4d3d-82e7-ccd83f6929c6.mock.pstmn.io/cancel_order"
                             },
+                            "quick_replies": [
+                                "I want to check the order list",
+                                "Please recommend me items"
+                            ],
                             "name":"cancel_order",
                             "description":"Cancel the order of the customer",
                             "parameters":{
@@ -286,6 +299,10 @@ open class SBUBaseChannelViewModel: NSObject {
                                 "method":"GET",
                                 "url":"https://789b92fc-4055-4d3d-82e7-ccd83f6929c6.mock.pstmn.io/get_recommendation"
                             },
+                            "quick_replies": [
+                                "I want to add item to my cart",
+                                "I don’t like any of them, thank you"
+                            ],
                             "name":"get_recommendation",
                             "description":"Get the recommendation list of the customer",
                             "parameters":{
@@ -317,7 +334,7 @@ open class SBUBaseChannelViewModel: NSObject {
         }
 
         SBUGlobalCustomParams.userMessageParamsSendBuilder?(messageParams)
-        
+
         if let parentMessage = parentMessage,
             SendbirdUI.config.groupChannel.channel.replyType != .none {
             messageParams.parentMessageId = parentMessage.messageId
@@ -325,10 +342,10 @@ open class SBUBaseChannelViewModel: NSObject {
         }
         messageParams.mentionedMessageTemplate = ""
         messageParams.mentionedUserIds = []
-        
+
         self.sendUserMessage(messageParams: messageParams, parentMessage: parentMessage)
     }
-    
+
     /// Sends a user message with mentionedMessageTemplate and mentionedUserIds.
     /// - Parameters:
     ///    - mentionedMessageTemplate: Mentioned message string value that is generated by `text` and `mentionedUsers`.
@@ -341,9 +358,9 @@ open class SBUBaseChannelViewModel: NSObject {
     /// ```
     open func sendUserMessage(text: String, mentionedMessageTemplate: String, mentionedUserIds: [String], parentMessage: BaseMessage? = nil) {
         let messageParams = UserMessageCreateParams(message: text)
-        
+
         SBUGlobalCustomParams.userMessageParamsSendBuilder?(messageParams)
-        
+
         if let parentMessage = parentMessage,
            SendbirdUI.config.groupChannel.channel.replyType != .none {
             messageParams.parentMessageId = parentMessage.messageId
@@ -353,7 +370,7 @@ open class SBUBaseChannelViewModel: NSObject {
         messageParams.mentionedUserIds = mentionedUserIds
         self.sendUserMessage(messageParams: messageParams, parentMessage: parentMessage)
     }
-    
+
     /// Sends a user messag with messageParams.
     ///
     /// You can send a message by setting various properties of MessageParams.
@@ -363,11 +380,11 @@ open class SBUBaseChannelViewModel: NSObject {
     /// - Since: 1.0.9
     open func sendUserMessage(messageParams: UserMessageCreateParams, parentMessage: BaseMessage? = nil) {
         SBULog.info("[Request] Send user message")
-        
+
         let preSendMessage = self.channel?.sendUserMessage(params: messageParams) { [weak self] userMessage, error in
             self?.sendUserMessageCompletionHandler?(userMessage, error)
         }
-               
+
         if let preSendMessage = preSendMessage,
            self.messageListParams.belongsTo(preSendMessage) {
             preSendMessage.parentMessage = parentMessage
@@ -379,13 +396,13 @@ open class SBUBaseChannelViewModel: NSObject {
         } else {
             SBULog.info("A filtered user message has been sent.")
         }
-        
+
         self.sortAllMessageList(needReload: true)
-        
+
         if let channel = self.channel as? GroupChannel {
             channel.endTyping()
         }
-        
+
         let context = MessageContext(source: .eventMessageSent, sendingStatus: .succeeded)
         self.baseDelegate?.baseChannelViewModel(
             self,
@@ -394,7 +411,7 @@ open class SBUBaseChannelViewModel: NSObject {
             keepsScroll: false
         )
     }
-    
+
     /// Sends a file message with file data, file name, mime type.
     /// - Parameters:
     ///   - fileData: `Data` class object
@@ -407,13 +424,13 @@ open class SBUBaseChannelViewModel: NSObject {
         messageParams.fileName = fileName
         messageParams.mimeType = mimeType
         messageParams.fileSize = UInt(fileData.count)
-        
+
         // Image size
         if let image = UIImage(data: fileData) {
             let thumbnailSize = ThumbnailSize.make(maxSize: image.size)
             messageParams.thumbnailSizes = [thumbnailSize]
         }
-        
+
         // Video thumbnail size
         else if let asset = fileData.getAVAsset() {
             let avAssetImageGenerator = AVAssetImageGenerator(asset: asset)
@@ -425,9 +442,9 @@ open class SBUBaseChannelViewModel: NSObject {
                 messageParams.thumbnailSizes = [thumbnailSize]
             }
         }
-        
+
         SBUGlobalCustomParams.fileMessageParamsSendBuilder?(messageParams)
-        
+
         if let parentMessage = parentMessage,
            SendbirdUI.config.groupChannel.channel.replyType != .none {
             messageParams.parentMessageId = parentMessage.messageId
@@ -435,7 +452,7 @@ open class SBUBaseChannelViewModel: NSObject {
         }
         self.sendFileMessage(messageParams: messageParams, parentMessage: parentMessage)
     }
-    
+
     /// Sends a voice message with ``SBUVoiceFileInfo`` object that contains essential information of a voice message.
     /// - Parameters:
     ///   - voiceFileInfo: ``SBUVoiceFileInfo`` class object
@@ -447,7 +464,7 @@ open class SBUBaseChannelViewModel: NSObject {
         let playtime = String(Int(voiceFileInfo.playtime ?? 0))
         let durationMetaArray = MessageMetaArray(key: SBUConstant.voiceMessageDurationKey, value: [playtime])
         let typeMetaArray = MessageMetaArray(key: SBUConstant.internalMessageTypeKey, value: [SBUConstant.voiceMessageType])
-        
+
         let messageParams = FileMessageCreateParams(file: fileData)
         messageParams.fileName = fileName // Maintain the file name used for recording to erase the recording file cache
         messageParams.mimeType = "\(SBUConstant.voiceMessageType);\(SBUConstant.voiceMessageTypeVoiceParameter)"
@@ -455,16 +472,16 @@ open class SBUBaseChannelViewModel: NSObject {
         messageParams.metaArrays = [durationMetaArray, typeMetaArray]
 
         SBUGlobalCustomParams.voiceFileMessageParamsSendBuilder?(messageParams)
-        
+
         if let parentMessage = parentMessage,
            SendbirdUI.config.groupChannel.channel.replyType != .none {
             messageParams.parentMessageId = parentMessage.messageId
             messageParams.isReplyToChannel = true
         }
-        
+
         self.sendFileMessage(messageParams: messageParams, parentMessage: parentMessage)
     }
-    
+
     /// Sends a file message with messageParams.
     ///
     /// You can send a file message by setting various properties of MessageParams.
@@ -474,12 +491,12 @@ open class SBUBaseChannelViewModel: NSObject {
     /// - Since: 1.0.9
     open func sendFileMessage(messageParams: FileMessageCreateParams, parentMessage: BaseMessage? = nil) {
         guard let channel = self.channel else { return }
-        
+
         SBULog.info("[Request] Send file message")
-        
+
         // for voice message
         let fileName = messageParams.fileName ?? ""
-        
+
         if SBUUtils.getFileType(by: messageParams.mimeType ?? "") == .voice {
             let extensiontype = URL(fileURLWithPath: fileName).pathExtension
             if extensiontype.count > 0 {
@@ -488,7 +505,7 @@ open class SBUBaseChannelViewModel: NSObject {
                 messageParams.fileName = "\(SBUStringSet.VoiceMessage.fileName)"
             }
         }
-        
+
         var preSendMessage: FileMessage?
         preSendMessage = channel.sendFileMessage(
             params: messageParams,
@@ -505,7 +522,7 @@ open class SBUBaseChannelViewModel: NSObject {
                 self?.sendFileMessageCompletionHandler?(fileMessage, error)
             }
         )
-        
+
         if let preSendMessage = preSendMessage {
             switch SBUUtils.getFileType(by: preSendMessage) {
             case .image:
@@ -518,14 +535,14 @@ open class SBUBaseChannelViewModel: NSObject {
                 let extensiontype = URL(fileURLWithPath: fileName).pathExtension
                 let voiceFileName = "\(SBUStringSet.VoiceMessage.fileName).\(extensiontype)"
                 let tempFileName = "\(fileName).\(extensiontype)"
-                
+
                 SBUCacheManager.File.preSave(fileMessage: preSendMessage, fileName: voiceFileName)
                 SBUCacheManager.File.removeVoiceTemp(fileName: tempFileName)
             default:
                 SBUCacheManager.File.preSave(fileMessage: preSendMessage, fileName: messageParams.fileName)
             }
         }
-        
+
         if let preSendMessage = preSendMessage, self.messageListParams.belongsTo(preSendMessage) {
             preSendMessage.parentMessage = parentMessage
             self.pendingMessageManager.upsertPendingMessage(
@@ -533,7 +550,7 @@ open class SBUBaseChannelViewModel: NSObject {
                 message: preSendMessage,
                 forMessageThread: self.isThreadMessageMode
             )
-            
+
             self.pendingMessageManager.addFileInfo(
                 requestId: preSendMessage.requestId,
                 params: messageParams,
@@ -542,9 +559,9 @@ open class SBUBaseChannelViewModel: NSObject {
         } else {
             SBULog.info("A filtered file message has been sent.")
         }
-        
+
         self.sortAllMessageList(needReload: true)
-        
+
         let context = MessageContext(source: .eventMessageSent, sendingStatus: .succeeded)
         self.baseDelegate?.baseChannelViewModel(
             self,
@@ -553,7 +570,7 @@ open class SBUBaseChannelViewModel: NSObject {
             keepsScroll: false
         )
     }
-    
+
     /// Updates a user message with message object.
     /// - Parameters:
     ///   - message: `UserMessage` object to update
@@ -562,14 +579,14 @@ open class SBUBaseChannelViewModel: NSObject {
     public func updateUserMessage(message: UserMessage, text: String) {
         let text = text.trimmingCharacters(in: .whitespacesAndNewlines)
         let messageParams = UserMessageUpdateParams(message: text)
-        
+
         SBUGlobalCustomParams.userMessageParamsUpdateBuilder?(messageParams)
         messageParams.mentionedMessageTemplate = ""
         messageParams.mentionedUserIds = []
-        
+
         self.updateUserMessage(message: message, messageParams: messageParams)
     }
-    
+
     /// Sends a user message with mentionedMessageTemplate and mentionedUserIds.
     /// - Parameters:
     ///   - message: `UserMessage` object to update
@@ -583,14 +600,14 @@ open class SBUBaseChannelViewModel: NSObject {
     /// ```
     open func updateUserMessage(message: UserMessage, text: String, mentionedMessageTemplate: String, mentionedUserIds: [String]) {
         let messageParams = UserMessageUpdateParams(message: text)
-        
+
         SBUGlobalCustomParams.userMessageParamsUpdateBuilder?(messageParams)
-        
+
         messageParams.mentionedMessageTemplate = mentionedMessageTemplate
         messageParams.mentionedUserIds = mentionedUserIds
         self.updateUserMessage(message: message, messageParams: messageParams)
     }
-    
+
     /// Updates a user message with message object and messageParams.
     ///
     /// You can update messages by setting various properties of MessageParams.
@@ -609,29 +626,29 @@ open class SBUBaseChannelViewModel: NSObject {
             self.baseDelegate?.baseChannelViewModel(self, shouldFinishEditModeForChannel: channel)
         }
     }
-    
+
     func handlePendingResendableMessage<Message: BaseMessage>(_ message: Message?, _ error: SBError?) { }
-    
+
     /// Resends a message with failedMessage object.
     /// - Parameter failedMessage: `BaseMessage` class based failed object
     /// - Since: 1.0.9
     public func resendMessage(failedMessage: BaseMessage) {
         if let failedMessage = failedMessage as? UserMessage {
             SBULog.info("[Request] Resend failed user message")
-            
+
             let pendingMessage = self.channel?.resendUserMessage(
                 failedMessage
             ) { [weak self] message, error in
                 guard let self = self else { return }
                 self.handlePendingResendableMessage(message, error)
             }
-            
+
             self.pendingMessageManager.upsertPendingMessage(
                 channelURL: self.channel?.channelURL,
                 message: pendingMessage,
                 forMessageThread: self.isThreadMessageMode
             )
-            
+
             if let failedMessage = pendingMessage {
                 self.deleteMessagesInList(
                     messageIds: [failedMessage.messageId],
@@ -639,7 +656,7 @@ open class SBUBaseChannelViewModel: NSObject {
                     needReload: true
                 )
             }
-            
+
         } else if let failedMessage = failedMessage as? FileMessage {
             var data: Data?
 
@@ -651,7 +668,7 @@ open class SBUBaseChannelViewModel: NSObject {
             }
 
             SBULog.info("[Request] Resend failed file message")
-            
+
             let pendingMessage = self.channel?.resendFileMessage(
                 failedMessage,
                 binaryData: data
@@ -662,13 +679,13 @@ open class SBUBaseChannelViewModel: NSObject {
                 guard let self = self else { return }
                 self.handlePendingResendableMessage(message, error)
             }
-            
+
             self.pendingMessageManager.upsertPendingMessage(
                 channelURL: self.channel?.channelURL,
                 message: pendingMessage,
                 forMessageThread: self.isThreadMessageMode
             )
-            
+
             if let failedMessage = pendingMessage {
                 self.deleteMessagesInList(
                     messageIds: [failedMessage.messageId],
@@ -677,8 +694,8 @@ open class SBUBaseChannelViewModel: NSObject {
                 )
             }
         }
-    }    
-    
+    }
+
     /// Deletes a message with message object.
     /// - Parameter message: `BaseMessage` based class object
     /// - Since: 1.0.9
@@ -686,9 +703,9 @@ open class SBUBaseChannelViewModel: NSObject {
         SBULog.info("[Request] Delete message: \(message.description)")
         self.channel?.deleteMessage(message, completionHandler: nil)
     }
-    
+
     // MARK: - List
-    
+
     /// This function updates the messages in the list.
     ///
     /// It is updated only if the messages already exist in the list, and if not, it is ignored.
@@ -707,10 +724,10 @@ open class SBUBaseChannelViewModel: NSObject {
                 }
             }
         }
-        
+
         self.sortAllMessageList(needReload: needReload)
     }
-    
+
     // TODO: Not used
     func filteredForThreadMessageView(messages: [BaseMessage]?) -> [BaseMessage]? {
         let pendingMessages = self.pendingMessageManager.getPendingMessages(
@@ -728,7 +745,7 @@ open class SBUBaseChannelViewModel: NSObject {
         }
         return refinedResult
     }
-    
+
     /// This function upserts the messages in the list.
     /// - Parameters:
     ///   - messages: Message array to upsert
@@ -736,12 +753,12 @@ open class SBUBaseChannelViewModel: NSObject {
     ///   - needReload: If set to `true`, the tableview will be call reloadData.
     /// - Since: 1.2.5
     public func upsertMessagesInList(messages: [BaseMessage]?,
-                                      needUpdateNewMessage: Bool = false,
-                                      needReload: Bool) {
+                                        needUpdateNewMessage: Bool = false,
+                                        needReload: Bool) {
         SBULog.info("First : \(String(describing: messages?.first)), Last : \(String(describing: messages?.last))")
-        
+
         var needMarkAsRead = false
-        
+
         messages?.forEach { message in
             if let index = SBUUtils.findIndex(of: message, in: self.messageList) {
                 self.messageList.remove(at: index)
@@ -751,19 +768,19 @@ open class SBUBaseChannelViewModel: NSObject {
                 self.sortAllMessageList(needReload: needReload)
                 return
             }
-            
+
             guard message is UserMessage || message is FileMessage else {
                 if message is AdminMessage {
                     self.messageList.append(message)
                 }
                 return
             }
-            
+
             if needUpdateNewMessage {
                 guard let channel = self.channel else { return }
                 self.baseDelegate?.baseChannelViewModel(self, didReceiveNewMessage: message, forChannel: channel)
             }
-            
+
             if message.sendingStatus == .succeeded {
                 self.messageList.append(message)
 
@@ -771,9 +788,9 @@ open class SBUBaseChannelViewModel: NSObject {
                     channelURL: channelURL,
                     requestId: message.requestId
                 )
-                
+
                 needMarkAsRead = true
-                
+
             } else if message.sendingStatus == .failed ||
                         message.sendingStatus == .pending {
                 if !self.isThreadMessageMode, message.parentMessageId > 0 { return }
@@ -784,14 +801,14 @@ open class SBUBaseChannelViewModel: NSObject {
                 )
             }
         }
-        
+
         if needMarkAsRead, let channel = self.channel as? GroupChannel, !self.isThreadMessageMode {
             channel.markAsRead(completionHandler: nil)
         }
-        
+
         self.sortAllMessageList(needReload: needReload)
     }
-    
+
     /// This function deletes the messages in the list using the message ids. (Resendable messages are also delete together.)
     /// - Parameters:
     ///   - messageIds: Message id array to delete
@@ -804,7 +821,7 @@ open class SBUBaseChannelViewModel: NSObject {
             needReload: needReload
         )
     }
-    
+
     /// This function deletes the messages in the list using the message ids.
     /// - Parameters:
     ///   - messageIds: Message id array to delete
@@ -812,10 +829,10 @@ open class SBUBaseChannelViewModel: NSObject {
     ///   - needReload: If set to `true`, the tableview will be call reloadData.
     /// - Since: 2.1.8
     public func deleteMessagesInList(messageIds: [Int64]?,
-                                     excludeResendableMessages: Bool,
-                                     needReload: Bool) {
+                                       excludeResendableMessages: Bool,
+                                       needReload: Bool) {
         guard let messageIds = messageIds else { return }
-        
+
         // if deleted message contains the currently editing message,
         // end edit mode.
         if let editMessage = inEditingMessage,
@@ -823,18 +840,18 @@ open class SBUBaseChannelViewModel: NSObject {
            let channel = self.channel {
             self.baseDelegate?.baseChannelViewModel(self, shouldFinishEditModeForChannel: channel)
         }
-        
+
         var toBeDeleteIndexes: [Int] = []
         var toBeDeleteRequestIds: [String] = []
-        
+
         for (index, message) in self.messageList.enumerated() {
             for messageId in messageIds {
                 guard message.messageId == messageId,
                       message.isMessageIdValid else { continue }
                 toBeDeleteIndexes.append(index)
-                
+
                 guard message.isRequestIdValid else { continue }
-                
+
                 switch message {
                 case let userMessage as UserMessage:
                     let requestId = userMessage.requestId
@@ -843,19 +860,19 @@ open class SBUBaseChannelViewModel: NSObject {
                 case let fileMessage as FileMessage:
                     let requestId = fileMessage.requestId
                     toBeDeleteRequestIds.append(requestId)
-                    
+
                 default: break
                 }
             }
         }
-        
+
         // for remove from last
         let sortedIndexes = toBeDeleteIndexes.sorted().reversed()
-        
+
         for index in sortedIndexes {
             self.messageList.remove(at: index)
         }
-        
+
         if excludeResendableMessages {
             self.sortAllMessageList(needReload: needReload)
         } else {
@@ -882,16 +899,16 @@ open class SBUBaseChannelViewModel: NSObject {
     public func deleteResendableMessages(requestIds: [String], needReload: Bool) {
         for requestId in requestIds {
             if requestId.isEmpty { continue }
-            
+
             self.pendingMessageManager.removePendingMessageAllTypes(
                 channelURL: self.channel?.channelURL,
                 requestId: requestId
             )
         }
-        
+
         self.sortAllMessageList(needReload: needReload)
     }
-    
+
     /// This function sorts the all message list. (Included `presendMessages`, `messageList` and `resendableMessages`.)
     /// - Parameter needReload: If set to `true`, the tableview will be call reloadData and, scroll to last seen index.
     /// - Since: 1.2.5
@@ -901,7 +918,7 @@ open class SBUBaseChannelViewModel: NSObject {
             channelURL: self.channel?.channelURL,
             forMessageThread: self.isThreadMessageMode
         )
-        
+
         let refinedPendingMessages = pendingMessages.filter { pendingMessage in
             var isInMessageList = false
             self.messageList.forEach { message in
@@ -912,17 +929,17 @@ open class SBUBaseChannelViewModel: NSObject {
             }
             return !isInMessageList
         }
-        
+
         if isTransformedList {
             self.messageList.sort { $0.createdAt > $1.createdAt }
             self.fullMessageList = refinedPendingMessages.sorted { $0.createdAt > $1.createdAt }
-                                    + self.messageList
+                                      + self.messageList
         } else {
             self.messageList.sort { $0.createdAt < $1.createdAt }
             self.fullMessageList = self.messageList
-                                    + refinedPendingMessages.sorted { $0.createdAt < $1.createdAt }
+                                      + refinedPendingMessages.sorted { $0.createdAt < $1.createdAt }
         }
-        
+
         self.baseDelegate?.shouldUpdateLoadingState(false)
         self.baseDelegate?.baseChannelViewModel(
             self,
@@ -931,7 +948,7 @@ open class SBUBaseChannelViewModel: NSObject {
             initialLoad: self.isInitialLoading
         )
     }
-    
+
     /// This functions clears current message lists
     ///
     /// - Since: 2.1.0
@@ -939,29 +956,29 @@ open class SBUBaseChannelViewModel: NSObject {
         self.fullMessageList.removeAll(where: { SBUUtils.findIndex(of: $0, in: messageList) != nil })
         self.messageList = []
     }
-    
+
     // MARK: - MessageListParams
     private func resetMessageListParams() {
         self.messageListParams = self.customizedMessageListParams?.copy() as? MessageListParams
             ?? MessageListParams()
-        
+
         if self.messageListParams.previousResultSize <= 0 {
             self.messageListParams.previousResultSize = self.defaultFetchLimit
         }
         if self.messageListParams.nextResultSize <= 0 {
             self.messageListParams.nextResultSize = self.defaultFetchLimit
         }
-        
+
         self.messageListParams.reverse = true
         self.messageListParams.includeReactions = SBUEmojiManager.isReactionEnabled(channel: channel)
-        
+
         self.messageListParams.includeThreadInfo = SBUGlobals.reply.includesThreadInfo
         self.messageListParams.includeParentMessageInfo = SBUGlobals.reply.includesParentMessageInfo
         self.messageListParams.replyType = SendbirdUI.config.groupChannel.channel.replyType.filterValue
-        
+
         self.messageListParams.includeMetaArray = true
     }
-    
+
     // MARK: - Reactions
     /// This function is used to add or delete reactions.
     /// - Parameters:
@@ -976,7 +993,7 @@ open class SBUBaseChannelViewModel: NSObject {
                 if let error = error {
                     self.baseDelegate?.didReceiveError(error, isBlocker: false)
                 }
-                
+
                 SBULog.info("[Response] \(reactionEvent?.key ?? "") reaction")
                 guard let reactionEvent = reactionEvent else { return }
                 if reactionEvent.messageId == message.messageId {
@@ -1000,19 +1017,19 @@ open class SBUBaseChannelViewModel: NSObject {
             }
         }
     }
-    
+
     // MARK: - Common
-    
+
     /// This function checks that have the following list.
     /// - Returns: This function returns `true` if there is the following list.
     public func hasNext() -> Bool { return false }
-    
+
     /// This function checks that have the previous list.
     /// - Returns: This function returns `true` if there is the previous list.
     public func hasPrevious() -> Bool { return false }
-    
+
     public func getStartingPoint() -> Int64? { return .max }
-    
+
     // MARK: - Cache
     func setupCache() {
         guard let channel = channel else { return }
@@ -1022,14 +1039,14 @@ open class SBUBaseChannelViewModel: NSObject {
         )
         self.messageCache?.loadInitial()
     }
-    
+
     func flushCache(with messages: [BaseMessage]) -> [BaseMessage] {
         SBULog.info("flushing cache with : \(messages.count)")
         guard let messageCache = self.messageCache else { return messages }
-        
+
         let mergedList = messageCache.flush(with: messages)
         self.messageCache = nil
-        
+
         return mergedList
     }
 }
@@ -1038,13 +1055,13 @@ open class SBUBaseChannelViewModel: NSObject {
 extension SBUBaseChannelViewModel: ConnectionDelegate {
     open func didSucceedReconnection() {
         SBULog.info("Did succeed reconnection")
-        
+
         SendbirdUI.updateUserInfo { error in
             if let error = error {
                 SBULog.error("[Failed] Update user info: \(error.localizedDescription)")
             }
         }
-        
+
         self.refreshChannel()
     }
 }
@@ -1054,7 +1071,7 @@ extension SBUBaseChannelViewModel: BaseChannelDelegate {
     // Received message
     open func channel(_ channel: BaseChannel, didReceive message: BaseMessage) {
         guard self.channel?.channelURL == channel.channelURL else { return }
-        
+
         switch message {
         case is UserMessage:
             SBULog.info("Did receive user message: \(message)")
@@ -1066,7 +1083,7 @@ extension SBUBaseChannelViewModel: BaseChannelDelegate {
             break
         }
     }
-    
+
     // If channel type is Group, please do not use belows any more.
     open func channel(_ channel: BaseChannel, didUpdate message: BaseMessage) {}
     open func channel(_ channel: BaseChannel, messageWasDeleted messageId: Int64) {}
