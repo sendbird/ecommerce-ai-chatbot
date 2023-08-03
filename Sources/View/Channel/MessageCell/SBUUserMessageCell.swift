@@ -158,13 +158,22 @@ open class SBUUserMessageCell: SBUContentBaseMessageCell, SBUUserMessageTextView
         // Configure Content base message cell
         super.configure(with: configuration)
         
+//        print("Message: \(message.message), Message data: \(message.data)")
+        // Parse JSON from received message data
+        let json = JSON(parseJSON: message.data)
+        
         // MARK: Quick Reply
         if let quickReplyView = self.quickReplyView {
             quickReplyView.removeFromSuperview()
             self.quickReplyView = nil
         }
-        
-        if let replyOptions = message.quickReply?.options, !replyOptions.isEmpty {
+
+        // If the message.data has "quick_replies", update the quick reply view.
+        if let quickReplies = json["quick_replies"].arrayObject as? [String], !quickReplies.isEmpty {
+            self.updateQuickReplyView(with: quickReplies)
+        }
+        // If the message doesn't have "quick_replies" but has "options", update the quick reply view.
+        else if let replyOptions = json["options"].arrayObject as? [String], !replyOptions.isEmpty {
             self.updateQuickReplyView(with: replyOptions)
         }
         
@@ -172,10 +181,7 @@ open class SBUUserMessageCell: SBUContentBaseMessageCell, SBUUserMessageTextView
         if let cardListView = self.cardListView {
             self.contentVStackView.removeArrangedSubview(cardListView)
         }
-        
-        // print("Message: \(message.message), Message data: \(message.data)")
-        // Parse JSON from received message data
-        let json = JSON(parseJSON: message.data)
+
         let functionResponse = json["function_response"]
 
         if functionResponse.type != .null {
