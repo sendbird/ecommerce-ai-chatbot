@@ -97,7 +97,7 @@
                                             </view>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="zdE-Rf-CSx">
                                                 <rect key="frame" x="0.0" y="160.00000000000003" width="327" height="48"/>
-                                                <color key="backgroundColor" red="0.46666666666666667" green="0.33725490196078434" blue="0.85098039215686272" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                <color key="backgroundColor" red="0.94240564110000002" green="0.57521855830000002" blue="0.3507558107" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="48" id="i9g-IX-v61"/>
                                                 </constraints>
@@ -154,6 +154,6 @@
         </scene>
     </scenes>
     <resources>
-        <image name="logoSendbird" width="48" height="48"/>
+        <image name="logoSendbird" width="35.666667938232422" height="44"/>
     </resources>
 </document>

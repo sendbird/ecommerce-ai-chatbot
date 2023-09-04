@@ -24,6 +24,7 @@ class ViewController: UIViewController, UserEventDelegate, ConnectionDelegate {
         }
     }
 
+    var isSignedIn: Bool = false
     let duration: TimeInterval = 0.4
 
     enum CornerRadius: CGFloat {
@@ -78,6 +79,7 @@ class ViewController: UIViewController, UserEventDelegate, ConnectionDelegate {
     }
 
     func signinAction() {
+        
         loadingIndicator.startAnimating()
         view.isUserInteractionEnabled = false
         
@@ -96,6 +98,8 @@ class ViewController: UIViewController, UserEventDelegate, ConnectionDelegate {
             return
         }
         
+        self.signOutAction()
+        
         SBUGlobals.currentUser = SBUUser(userId: userID, nickname: nickname)
         SendbirdUI.connect { [weak self] user, error in
             self?.loadingIndicator.stopAnimating()
@@ -104,8 +108,10 @@ class ViewController: UIViewController, UserEventDelegate, ConnectionDelegate {
             if let user = user {
                 UserDefaults.saveUserID(userID)
                 UserDefaults.saveNickname(nickname)
+                print("SendbirdUIKit.connect: \(userID)")
+                print("SendbirdUIKit.connect: \(user) \(userID) \(nickname)")
                 
-                print("SendbirdUIKit.connect: \(user)")
+                self?.isSignedIn = true
                 
                 let mainVC = SBUGroupChannelListViewController()
                 let naviVC = UINavigationController(rootViewController: mainVC)
@@ -114,7 +120,19 @@ class ViewController: UIViewController, UserEventDelegate, ConnectionDelegate {
             }
         }
     }
+    
+    func signOutAction() {
+        SendbirdUI.unregisterPushToken { success in
+            SendbirdUI.disconnect { [weak self] in
+                print("SendbirdUIKit.disconnect")
+                self?.isSignedIn = false
+            }
+        }
+    }
+    
 }
+
+
 
 extension ViewController: UITextFieldDelegate {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
