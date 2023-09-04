@@ -56,7 +56,6 @@ This demo app demonstrates the implementation of the AI Chatbot tailored for e-c
 ***Note***: Currently, calling a 3rd party function is an experimental feature, and some logics are handled on the client-side for convenience purposes. Due to this, the current version for iOS (3.7.0 beta) will see breaking changes in the future, especially for QuickReplyView and CardView. Also, the ad-hoc support from the server that goes into the demo may be discontinued at any time and will be replaced with a proper feature on Sendbird Dashboard in the future.
 
 ## Demo app settings
-## Demo app settings
 To run the demo app, you must specify `System prompt`, `Function Calls`.
 
 ### System Message
@@ -65,7 +64,7 @@ To run the demo app, you must specify `System prompt`, `Function Calls`.
 You can find this setting under Chat > AI Chatbot > Manage bots > Edit > Bot settings > Parameter settings > System prompt.
 
 - Input example
-  
+  <img width="1118" alt="image" src="https://github.com/sendbird/ecommerce-ai-chatbot/assets/104121286/2d63116c-3557-4b80-bbf8-12166e33a091">
 
 ```
 You are an AI assistant that handles and manages customer orders. You will be interacting with customers who have the orders.
@@ -84,26 +83,25 @@ If a customer needs further assistance after order cancellation, be ready to pro
 You can find this setting under Chat > AI Chatbot > Settings > Function Calls. 
 
 - Example list of Function Calls
-  
+  <img width="1000" alt="image" src="https://github.com/sendbird/ecommerce-ai-chatbot/assets/104121286/6bca33cd-3f88-41d8-a87d-af01766f92b9">
 
 - Input example
-  
+  <img width="1000" alt="image" src="https://github.com/sendbird/ecommerce-ai-chatbot/assets/104121286/1d3f094b-b69b-4780-a5e1-c60f63d7ef98">
+
 
 In addition, you can enhance user experience by streamlining the communication with a Welcome Message, Quick Replies and Button. Using Quick Replies can improve the clarity of your customer’s intention as they are presented with a list of predefined options determined by you.
 
 Mock API Server Information: [Link](https://documenter.getpostman.com/view/21816899/2s9Y5eMK9o)
 
-## Welcome Message and Quick Replies
 ## Welcome Message and Suggested Replies
-
+<img width="387" alt="image" src="https://github.com/sendbird/ecommerce-ai-chatbot/assets/104121286/27628078-b92d-433f-911e-c7e1b2f15c29">
 
 The `Welcome Message` is the first message displayed to users by the chatbot. Along with the `Welcome Message`, you can also set up `Suggested Replies` from the Dashboard.
 
 You can find this setting under Chat > AI Chatbot > Manage bots > Edit > Bot settings > Default messages > Welcome message / Suggested replies.
 
 - Input example
-  
-
+  <img width="1140" alt="image" src="https://github.com/sendbird/ecommerce-ai-chatbot/assets/104121286/41c088dc-f2ef-414c-93a0-742c1dc4f9bc">
 
 ## UI Components
 ### CardView
