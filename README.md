@@ -29,14 +29,14 @@ SendbirdUI.initialize(applicationId: <#applicationID: String#>)
 ```
 
 ## Table of Contents
-1. [Use case: E-commerce](##use-case-e-commerce)
-2. [How it works](##how-it-works)
-3. [Demo app settings](##demo-app-settings)
-4. [System Message](###system-message)
-5. [Function Calls](###function-calls)
-6. [Welcome Message and Suggestions](##welcome-message-and-suggested-replies)
-7. [UI Components](##ui-components)
-8. [Limitations](##limitations)
+1. [Use case: E-commerce](#use-case-e-commerce)
+2. [How it works](#how-it-works)
+3. [Demo app settings](#demo-app-settings)
+4. [System Message](#system-message)
+5. [Function Calls](#function-calls)
+6. [Welcome Message and Suggestions](#welcome-message-and-suggested-replies)
+7. [UI Components](#ui-components)
+8. [Limitations](#limitations)
 
 ## Use case: E-commerce
 This demo app demonstrates the implementation of the AI Chatbot tailored for e-commerce. It includes functionalities such as ***retrieving the order list, showing order details, canceling orders, and providing recommendations.*** By leveraging ChatGPT’s new feature [Function Calling](https://openai.com/blog/function-calling-and-other-api-updates), the Chatbot now can make an API request to the 3rd party with a predefined Function Calling based on customer’s enquiry. Then it parses and presents the response in a conversational manner, enhancing overall customer experience.
