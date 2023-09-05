@@ -12,7 +12,7 @@ public class SBUColorSet {
     // MARK: - Primary
     public static var primary100 = UIColor(red: 219.0 / 255.0, green: 209.0 / 255.0, blue: 1.0, alpha: 1.0)
     public static var primary200 = UIColor(red: 194.0 / 255.0, green: 169.0 / 255.0, blue: 250.0 / 255.0, alpha: 1.0)
-    public static var primary300 = UIColor(red: 116.0 / 255.0, green: 45.0 / 255.0, blue: 221.0 / 255.0, alpha: 1.0)
+    public static var primary300 = UIColor(red: 255.0 / 255.0, green: 141.0 / 255.0, blue: 75.0 / 255.0, alpha: 1.0)
     public static var primary400 = UIColor(red: 98.0 / 255.0, green: 17.0 / 255.0, blue: 200.0 / 255.0, alpha: 1.0)
     public static var primary500 = UIColor(red: 73.0 / 255.0, green: 19.0 / 255.0, blue: 137.0 / 255.0, alpha: 1.0)
     

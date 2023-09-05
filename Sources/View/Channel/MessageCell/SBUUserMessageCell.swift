@@ -125,23 +125,6 @@ open class SBUUserMessageCell: SBUContentBaseMessageCell, SBUUserMessageTextView
     }
     
     // MARK: - Common
-    fileprivate func filterMessage(_ message: UserMessage, _ customText: inout String?) {
-        let messageText = message.message
-        // Split the message into lines
-        var lines = messageText.split(separator: "\n")
-        
-        let regex = try! NSRegularExpression(pattern: #"^(\d+\.\s|\-)"#, options: [])
-        
-        // Filter out lines that match the regular expression
-        lines = lines.filter {
-            let range = NSRange(location: 0, length: $0.utf16.count)
-            return regex.firstMatch(in: String($0), options: [], range: range) == nil
-        }
-        
-        // Join the remaining lines back together
-        customText = lines.joined(separator: "\n")
-    }
-    
     open override func configure(with configuration: SBUBaseMessageCellParams) {
         guard let configuration = configuration as? SBUUserMessageCellParams else { return }
         guard let message = configuration.userMessage else { return }
@@ -158,7 +141,8 @@ open class SBUUserMessageCell: SBUContentBaseMessageCell, SBUUserMessageTextView
         // Configure Content base message cell
         super.configure(with: configuration)
         
-//        print("Message: \(message.message), Message data: \(message.data)")
+        print("==================================================================")
+        print("!!!!!!!!!!!!!Message: \(message.message), Message data: \(message.data)")
         // Parse JSON from received message data
         let json = JSON(parseJSON: message.data)
         
@@ -168,31 +152,25 @@ open class SBUUserMessageCell: SBUContentBaseMessageCell, SBUUserMessageTextView
             self.quickReplyView = nil
         }
 
-        // If the message.data has "quick_replies", update the quick reply view.
         if let quickReplies = json["quick_replies"].arrayObject as? [String], !quickReplies.isEmpty {
             self.updateQuickReplyView(with: quickReplies)
         }
-        // If the message doesn't have "quick_replies" but has "options", update the quick reply view.
-        else if let replyOptions = json["options"].arrayObject as? [String], !replyOptions.isEmpty {
-            self.updateQuickReplyView(with: replyOptions)
-        }
-        
+
         // MARK: Card List
         if let cardListView = self.cardListView {
             self.contentVStackView.removeArrangedSubview(cardListView)
         }
 
-        let functionResponse = json["function_response"]
+        let functionResponse = json["function_calls"][0]
 
         if functionResponse.type != .null {
             let statusCode = functionResponse["status_code"].intValue
-            let endpoint = functionResponse["endpoint"].stringValue
-            let response = functionResponse["response"]
+            let functionName = functionResponse["name"].stringValue
+            let response = functionResponse["response_text"]
 
             if statusCode == 200 {
-                filterMessage(message, &customText)
-
-                if endpoint.contains("get_order_list") {
+                if functionName.contains("get_order_list") {
+                    customText = "Here is your order list"
                     SBUGlobalCustomParams.cardViewParamsCollectionBuilder = { messageData in
                         guard let json = try? JSON(parseJSON: messageData) else { return [] }
 
@@ -225,7 +203,8 @@ open class SBUUserMessageCell: SBUContentBaseMessageCell, SBUUserMessageTextView
                     if let items = try?SBUGlobalCustomParams.cardViewParamsCollectionBuilder?(response.rawString()!){
                         self.addCardListView(with: items)
                     }
-                } else if endpoint.contains("get_order_details") {
+                } else if functionName.contains("get_order_details") {
+                    customText = "Here is your order details"
                     SBUGlobalCustomParams.cardViewParamsCollectionBuilder = { messageData in
                         guard let json = try? JSON(parseJSON: messageData) else { return [] }
 
@@ -244,7 +223,8 @@ open class SBUUserMessageCell: SBUContentBaseMessageCell, SBUUserMessageTextView
                     if let items = try?SBUGlobalCustomParams.cardViewParamsCollectionBuilder?(response.rawString()!){
                         self.addCardListView(with: items)
                     }
-                } else if endpoint.contains("get_recommendation") {
+                } else if functionName.contains("get_recommendation") {
+                    customText = "Here are some recommended items for you"
                     disableWebview = true
                     SBUGlobalCustomParams.cardViewParamsCollectionBuilder = { messageData in
                         guard let json = try? JSON(parseJSON: messageData) else { return [] }

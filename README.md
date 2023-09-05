@@ -8,7 +8,7 @@
 This demo app showcases what AI Chatbots with Sendbird can do to enhance the customer experience of your service with more personalized and comprehensive customer support.
 Utilizing OpenAI’s GPT3.5 and its Function Calling functionality, ***Sendbird helps you build a chatbot that can go extra miles: providing informative responses with the data source you feed to the bot, accommodating customer’s requests such as tracking and canceling their orders, and even recommending new products.*** Create your own next generation AI Chatbot by following the tutorial below.
 
-![final_output](https://github.com/sendbird/ecommerce-ai-chatbot/assets/104121286/08af39f4-ee5f-4b36-b6fc-2e7723982652)
+![e-commerce](https://github.com/sendbird/ecommerce-ai-chatbot/assets/104121286/33b39bbf-1bb9-4794-93df-eadc51ea77b7)
 
 ## Prerequisites
 1. [Sendbird Account](https://dashboard.sendbird.com/)
@@ -29,19 +29,21 @@ SendbirdUI.initialize(applicationId: <#applicationID: String#>)
 ```
 
 ## Table of Contents
-1. [Use case: E-commerce](##use-case-e-commerce)
-2. [How it works](##how-it-works)
-3. [Demo app settings](##demo-app-settings)
-4. [System Message and Function Calling](##system-message-and-function-calling)
-5. [Welcome Message and Quick Replies](##welcome-message-and-quick-replies)
-6. [UI Components](##ui-components)
-7. [Limitations](##limitations)
+1. [Use case: E-commerce](#use-case-e-commerce)
+2. [How it works](#how-it-works)
+3. [Demo app settings](#demo-app-settings)
+4. [System Message](#system-message)
+5. [Function Calls](#function-calls)
+6. [Welcome Message and Suggestions](#welcome-message-and-suggested-replies)
+7. [UI Components](#ui-components)
+8. [Limitations](#limitations)
 
 ## Use case: E-commerce
 This demo app demonstrates the implementation of the AI Chatbot tailored for e-commerce. It includes functionalities such as ***retrieving the order list, showing order details, canceling orders, and providing recommendations.*** By leveraging ChatGPT’s new feature [Function Calling](https://openai.com/blog/function-calling-and-other-api-updates), the Chatbot now can make an API request to the 3rd party with a predefined Function Calling based on customer’s enquiry. Then it parses and presents the response in a conversational manner, enhancing overall customer experience.
 
 ## How it works
-<img width="2556" alt="image" src="https://github.com/sendbird/sendbird-uikit-ios/assets/104121286/12a8cb5f-8127-41cb-9570-3c979f977ad4">
+![image](https://github.com/sendbird/ecommerce-ai-chatbot/assets/104121286/819d7006-a207-461e-adad-4992bf893534)
+
 
 1. A customer sends a message containing a specific request on the client app to the Sendbird server.
 2. The Sendbird server then delivers the message to Chat GPT.
@@ -56,176 +58,74 @@ This demo app demonstrates the implementation of the AI Chatbot tailored for e-c
 ***Note***: Currently, calling a 3rd party function is an experimental feature, and some logics are handled on the client-side for convenience purposes. Due to this, the current version for iOS (3.7.0 beta) will see breaking changes in the future, especially for QuickReplyView and CardView. Also, the ad-hoc support from the server that goes into the demo may be discontinued at any time and will be replaced with a proper feature on Sendbird Dashboard in the future.
 
 ## Demo app settings
-To run the demo app, you must specify `system_message` and `functions` in `ai_attrs`. Each provides the AI Chatbot with directions on how to interpret a customer’s message and respond to it using the predefined functions.
+To run the demo app, you must specify `System prompt`, `Function Calls`.
 
-In addition, you can enhance user experience by streamlining the communication with a Welcome Message and Quick Replies. Using Quick Replies can improve the clarity of your customer’s intention as they are presented with a list of predefined options determined by you.
+### System Message
+`System prompt` defines the Persona of the ChatBot, informing users of the role the ChatBot plays. For this E-Commerce AI ChatBot, It's designed to be an AI assistant that handles and manages customer orders.
 
-## System Message and Function Calling
-The following is a prompt sample of `system_message` and `functions` in `json` format, which are contained in `ai_attrs`. The `system_message` value serves as guidelines on how the bot should handle customer inquiries while `functions` lists the function calls that Chat GPT can make when it determines that a specific request was submitted. The keys and values in the prompt will be stored in the `messageParams.data` property in `string`.
+You can find this setting under Chat > AI Chatbot > Manage bots > Edit > Bot settings > Parameter settings > System prompt.
 
-`ai_attrs`
- - `system_message`: this declares the persona and responsibilities of your Chatbot. You can also specify response examples, limitations, and the customer’s nickname and ID.
-   - The part in the `system_message` content that says `"and you give me the suggested ~~~ ^NSOJ"`, requesting a Quick Reply, doesn't function well in GPT3.5, but operates correctly in GPT4.
- - `functions`: this contains information related to Function Calling, which are a list of functions that Chat GPT can call and the 3rd party API information to send the Function Calling request to.
-   - `request`: 3rd party API information
-      - `headers`: header for the api request
-     - `method`: a method for the API request, such as `GET`, `POST`, `PUT`, or `DELETE`
-     - `url`: the API request URL
-   - `name`: the name of the Function Calling request
-   - `description`: the description about the Function Calling request. It can detail when to call the function and what action to be taken. Chat GPT will use this information to analyze the customer’s message and determine whether to call the function or not.
-   - `parameter`: This contains a list of arguments required for the Function Calling.
+- Input example
+  <img width="1118" alt="image" src="https://github.com/sendbird/ecommerce-ai-chatbot/assets/104121286/2d63116c-3557-4b80-bbf8-12166e33a091">
 
-[SBUBaseChannelViewModel.swift](https://github.com/sendbird/ecommerce-ai-chatbot/blob/develop/Sources/ViewModel/Channel/SBUBaseChannelViewModel.swift#L221)
-```swift
-let data = """
-    {
-        "ai_attrs":{
-            "system_message":"You are an AI assistant that handles and manages customer orders. You will be interacting with customers who have the orders. Ensure a maximum of three highly relevant recommended quick replies are always included in the response with this format JSON^{\\\"options\\\": [\\\"I want to check the order list\\\", \\\"I'd like to cancel my order\\\", \\\"Please recommend me items\\\", \\\"Yes I want cancel it\\\", \\\"No I don't want\\\",  \\\"I don’t like any of them, thank you\\\"]}^NSOJ\\\\n1. Available 24/7 to assist customers with their order inquiries.\\\\n2. Customers may request to check the status of their orders or cancel them.\\\\n3. You have access to the customer's order list and the order details associated with it.\\\\n4. When a customer requests to cancel an order, you need to confirm the specific order number from their order list before proceeding.\\\\n5. Ensure confirmation for the cancellation to the customer once it has been processed successfully.\\\\nIf a customer needs further assistance after order cancellation, be ready to provide it\\\\nYou will be interacting with customers named John and cumstomer id is 12345",
-            "functions":[
-                {
-                    "request":{
-                        "headers":{},
-                        "method":"GET",
-                        "url":"https://789b92fc-4055-4d3d-82e7-ccd83f6929c6.mock.pstmn.io/get_order_list"
-                    },
-                    "name":"get_order_list",
-                    "description":"Get the order list of the customer",
-                    "parameters":{
-                        "type":"object",
-                        "properties":{
-                            "customer_id":{
-                                "description":"Customer ID of the customer",
-                                "type":"string"
-                            }
-                        },
-                        "required":["customer_id"]
-                    }
-                },
-                {
-                    "request":{
-                        "headers":{},
-                        "method":"GET",
-                        "url":"https://789b92fc-4055-4d3d-82e7-ccd83f6929c6.mock.pstmn.io/get_order_details"
-                    },
-                    "name":"get_order_details",
-                    "description":"Get the order details of the customer",
-                    "parameters":{
-                        "type":"object",
-                        "properties":{
-                            "order_id":{
-                                "description":"Order ID of the customer",
-                                "type":"string"
-                            }
-                        },
-                        "required":["order_id"]
-                    }
-                },
-                {
-                    "request":{
-                        "headers":{},
-                        "method":"POST",
-                        "url":"https://789b92fc-4055-4d3d-82e7-ccd83f6929c6.mock.pstmn.io/cancel_order"
-                    },
-                    "name":"cancel_order",
-                    "description":"Cancel the order of the customer",
-                    "parameters":{
-                        "type":"object",
-                        "properties":{
-                            "order_id":{
-                                "description":"Order ID of the customer",
-                                "type":"string"
-                            }
-                        },
-                        "required":["order_id"]
-                    }
-                },
-                {
-                    "request":{
-                        "headers":{},
-                        "method":"GET",
-                        "url":"https://789b92fc-4055-4d3d-82e7-ccd83f6929c6.mock.pstmn.io/get_recommendation"
-                    },
-                    "name":"get_recommendation",
-                    "description":"Get the recommendation list of the customer",
-                    "parameters":{
-                        "type":"object",
-                        "properties":{
-                            "customer_id":{
-                                "description":"Customer ID of the customer",
-                                "type":"string"
-                            }
-                        },
-                        "required":["customer_id"]
-                    }
-                }
-            ]
-        }
-    }
-"""
+```
+You are an AI assistant that handles and manages customer orders. You will be interacting with customers who have the orders.
+
+1. Available 24/7 to assist customers with their order inquiries.
+2. Customers may request to check the status of their orders or cancel them.
+3. You have access to the customer's order list and the order details associated with it.
+4. When a customer requests to cancel an order, you need to confirm the specific order number from their order list before proceeding.
+5. Ensure confirmation for the cancellation to the customer once it has been processed successfully.
+If a customer needs further assistance after order cancellation, be ready to provide it
 ```
 
-## Welcome Message and Quick Replies
-<img width="380" alt="image" src="https://github.com/sendbird/sendbird-uikit-ios/assets/104121286/a4c69ccc-a2f9-4c47-8f7a-16f452fc67d9">
+### Function Calls
+`Function Calls` allows you to define situations where the ChatBot needs to interface with external APIs. Within `Function Calls`, you need to enter definitions for the Function and Parameters to pass to GPT, and you can define the specs of the 3rd party API to obtain the actual data of the specified Function.
+
+You can find this setting under Chat > AI Chatbot > Settings > Function Calls. 
+
+- Example list of Function Calls
+  <img width="1000" alt="image" src="https://github.com/sendbird/ecommerce-ai-chatbot/assets/104121286/6bca33cd-3f88-41d8-a87d-af01766f92b9">
+
+- Input example
+  <img width="1000" alt="image" src="https://github.com/sendbird/ecommerce-ai-chatbot/assets/104121286/1d3f094b-b69b-4780-a5e1-c60f63d7ef98">
 
 
-The following is a prompt sample of `first_message_data` in `json` format. The object contains two pieces of information: `message` and `data`. The string value in message will act as a Welcome Message while values in `data` represent the Quick Replies that the customer can choose from. The keys and values in the prompt will be stored in the `channelCreateParams.data` property in `string`.
+In addition, you can enhance user experience by streamlining the communication with a Welcome Message, Quick Replies and Button. Using Quick Replies can improve the clarity of your customer’s intention as they are presented with a list of predefined options determined by you.
 
-`first_message_data`
- - `data`: you can use Quick Replies as a preset of messages that a customer can choose from. These Quick Replies will be displayed with its own UI components. Use `option` for Quick Replies in the `data` object
-   - `options`: this contains a list of Quick Reply messages. A customer can choose a predefined item from the list, which enhances the clarity of the customer’s request and thus helps the AI Chatbot understand their intention.
- - `message`: this is a Welcome Message to greet a customer when they open a channel and initiate conversation with an AI ChatBot. 
+Mock API Server Information: [Link](https://documenter.getpostman.com/view/21816899/2s9Y5eMK9o)
 
-[SBUCreateChannelViewModel.swift](https://github.com/sendbird/ecommerce-ai-chatbot/blob/develop/Sources/ViewModel/SelectUser/CreateChannel/SBUCreateChannelViewModel.swift#L223)
-```swift
-let data: [String: Any] = [
-    "first_message_data": [
-        [
-            "data": [
-                "options": [
-                    "I want to check the order list",
-                    "I want to cancel my order",
-                    "Please recommend me items"
-                ]
-            ],
-            "message": "Hello! I'm E-Commer's chatbot. I'm still learning but I'm here 24/7 to answer your question or connect you with the right person to help."
-        ]
-    ]
-]
-                
-do {
-    let jsonData = try JSONSerialization.data(withJSONObject: data, options: [])
-    if let jsonString = String(data: jsonData, encoding: .utf8) {
-        params.data = jsonString
-    }
-} catch {
-    print("Error while converting to JSON: \(error)")
-}
-```
+## Welcome Message and Suggested Replies
+<img width="387" alt="image" src="https://github.com/sendbird/ecommerce-ai-chatbot/assets/104121286/27628078-b92d-433f-911e-c7e1b2f15c29">
+
+The `Welcome Message` is the first message displayed to users by the chatbot. Along with the `Welcome Message`, you can also set up `Suggested Replies` from the Dashboard.
+
+You can find this setting under Chat > AI Chatbot > Manage bots > Edit > Bot settings > Default messages > Welcome message / Suggested replies.
+
+- Input example
+  <img width="1140" alt="image" src="https://github.com/sendbird/ecommerce-ai-chatbot/assets/104121286/41c088dc-f2ef-414c-93a0-742c1dc4f9bc">
 
 ## UI Components
 ### CardView
 The `data` in the response are displayed in a Card view. In the demo, information such as order items and their delivery status can be displayed in a card with an image, title, and description. Customization of the view can be done through `cardViewParamsCollectionBuilder` and `SBUCardViewParams`. The following codes show how to set the Card view of order status.
 
-[SBUUserMessageCell.swift](https://github.com/sendbird/ecommerce-ai-chatbot/blob/develop/Sources/View/Channel/MessageCell/SBUUserMessageCell.swift#L171)
+[SBUUserMessageCell.swift](https://github.com/sendbird/ecommerce-ai-chatbot/blob/develop/Sources/View/Channel/MessageCell/SBUUserMessageCell.swift#L159)
 ```swift
 // MARK: Card List
 if let cardListView = self.cardListView {
     self.contentVStackView.removeArrangedSubview(cardListView)
 }
 
-// Parse JSON from received message data
-let json = JSON(parseJSON: message.data)
-let functionResponse = json["function_response"]
+let functionResponse = json["function_calls"][0]
 
 if functionResponse.type != .null {
     let statusCode = functionResponse["status_code"].intValue
-    let endpoint = functionResponse["endpoint"].stringValue
-    let response = functionResponse["response"]
+    let functionName = functionResponse["name"].stringValue
+    let response = functionResponse["response_text"]
 
     if statusCode == 200 {
-        filterMessage(message, &customText)
-
-        if endpoint.contains("get_order_list") {
+        if functionName.contains("get_order_list") {
+            customText = "Here is your order list"
             SBUGlobalCustomParams.cardViewParamsCollectionBuilder = { messageData in
                 guard let json = try? JSON(parseJSON: messageData) else { return [] }
 
@@ -247,28 +147,29 @@ if functionResponse.type != .null {
                     let titleWithIcon = icon.isEmpty ? "Order #\(order["id"].stringValue)" : "\(icon) Order #\(order["id"].stringValue)"
 
                     return SBUCardViewParams(
-                            imageURL: nil,
-                            title: titleWithIcon,
-                            subtitle: "Your Order \(deliveryStatus)",
-                            description: "Items:" + ((order["items"].arrayObject as? [String])?.joined(separator: ", "))!,
-                            link: nil
+                        imageURL: nil,
+                        title: titleWithIcon,
+                        subtitle: "Your Order \(deliveryStatus)",
+                        description: "Items:" + ((order["items"].arrayObject as? [String])?.joined(separator: ", "))!,
+                        link: nil
                     )
                 }
             }
             if let items = try?SBUGlobalCustomParams.cardViewParamsCollectionBuilder?(response.rawString()!){
                 self.addCardListView(with: items)
             }
-        } else if endpoint.contains("get_order_details") {
+        } else if functionName.contains("get_order_details") {
+            customText = "Here is your order details"
             SBUGlobalCustomParams.cardViewParamsCollectionBuilder = { messageData in
                 guard let json = try? JSON(parseJSON: messageData) else { return [] }
 
                 // Convert the single order object into a SBUCardViewParams object
                 let orderParams = SBUCardViewParams(
-                        imageURL: nil,
-                        title: "Order #\(json["id"].stringValue) by \(json["customer_name"].stringValue)",
-                        subtitle: "- Status: \(json["status"].stringValue)\n- Estimated Delivery Date: \(json["estimatedDeliveryDate"].stringValue)",
-                        description: "- Items: " + ((json["items"].arrayObject as? [String])?.joined(separator: ", "))! + "\n- Total Price: $\(json["purchasePrice"].intValue)",
-                        link: nil
+                    imageURL: nil,
+                    title: "Order #\(json["id"].stringValue) by \(json["customer_name"].stringValue)",
+                    subtitle: "- Status: \(json["status"].stringValue)\n- Estimated Delivery Date: \(json["estimatedDeliveryDate"].stringValue)",
+                    description: "- Items: " + ((json["items"].arrayObject as? [String])?.joined(separator: ", "))! + "\n- Total Price: $\(json["purchasePrice"].intValue)",
+                    link: nil
                 )
 
                 // Return the SBUCardViewParams object inside an array
@@ -277,7 +178,8 @@ if functionResponse.type != .null {
             if let items = try?SBUGlobalCustomParams.cardViewParamsCollectionBuilder?(response.rawString()!){
                 self.addCardListView(with: items)
             }
-        } else if endpoint.contains("get_recommendation") {
+        } else if functionName.contains("get_recommendation") {
+            customText = "Here are some recommended items for you"
             disableWebview = true
             SBUGlobalCustomParams.cardViewParamsCollectionBuilder = { messageData in
                 guard let json = try? JSON(parseJSON: messageData) else { return [] }
@@ -307,7 +209,7 @@ if functionResponse.type != .null {
 ### QuickReplyView
 The following codes demonstrate how to set the view for Quick Replies. The values in `options` of `first_message_data.data` are used as Quick Replies.
 
-[SBUUserMessageCell.swift](https://github.com/sendbird/ecommerce-ai-chatbot/blob/develop/Sources/View/Channel/MessageCell/SBUUserMessageCell.swift#L161)
+[SBUUserMessageCell.swift](https://github.com/sendbird/ecommerce-ai-chatbot/blob/develop/Sources/View/Channel/MessageCell/SBUUserMessageCell.swift#L150)
 ```swift
 // MARK: Quick Reply        
 if let quickReplyView = self.quickReplyView {
@@ -315,8 +217,8 @@ if let quickReplyView = self.quickReplyView {
     self.quickReplyView = nil
 }
 
-if let replyOptions = message.quickReply?.options, !replyOptions.isEmpty {
-    self.updateQuickReplyView(with: replyOptions)
+if let quickReplies = json["quick_replies"].arrayObject as? [String], !quickReplies.isEmpty {
+    self.updateQuickReplyView(with: quickReplies)
 }
 ```
 
